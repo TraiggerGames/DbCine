@@ -19,10 +19,10 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "es.recha.dbcine.repository.mongo")
 public class MongoConfig {
 
-    @Value("${spring.data.mongodb.uri}")
+    @Value("${spring.mongodb.uri}")
     private String mongoUri;
 
-    @Value("${spring.data.mongodb.database}")
+    @Value("${spring.mongodb.database}")
     private String databaseName;
 
     @Bean
@@ -38,14 +38,9 @@ public class MongoConfig {
     @Primary
     @Bean
     public MongoTemplate mongoTemplate() {
-        MappingMongoConverter converter = new MappingMongoConverter(
-                new DefaultDbRefResolver(mongoDbFactory()),
-                new MongoMappingContext()
-        );
-
-        // Esta es la configuración que elimina el campo _class
+        MappingMongoConverter converter =
+                new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory()), new MongoMappingContext());
         converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-
         return new MongoTemplate(mongoDbFactory(), converter);
     }
 }

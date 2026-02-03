@@ -7,6 +7,7 @@ import es.recha.dbcine.repository.mongo.EmpleadoMongoRepository; // Tu nuevo rep
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,7 +36,7 @@ public class EmpleadoService {
         mongoObj.setActivo(guardado.getActivo());
         mongoObj.setPuesto(guardado.getPuesto());
         mongoObj.setTelefono(guardado.getTelefono());
-        mongoObj.setFechaContratacion(guardado.getFechaContratacion());
+        mongoObj.setFechaContratacion(Date.from(guardado.getFechaContratacion().toInstant()));
         mongoObj.setSalarioHora(guardado.getSalarioHora());
         mongoObj.setHorasContrato(guardado.getHorasContrato());
 
@@ -60,7 +61,7 @@ public class EmpleadoService {
         mongo.setTipoJornada(sql.getTipoJornada());
         mongo.setEmail(sql.getEmail());
         mongo.setTelefono(sql.getTelefono());
-        mongo.setFechaContratacion(sql.getFechaContratacion());
+        mongo.setFechaContratacion(Date.from(sql.getFechaContratacion().toInstant()));
         mongo.setSalarioHora(sql.getSalarioHora());
         mongo.setActivo(sql.getActivo());
         mongo.setHorasContrato(sql.getHorasContrato());
@@ -85,7 +86,7 @@ public class EmpleadoService {
                     mongo.setTipoJornada(sql.getTipoJornada());
                     mongo.setEmail(sql.getEmail());
                     mongo.setTelefono(sql.getTelefono());
-                    mongo.setFechaContratacion(sql.getFechaContratacion());
+                    mongo.setFechaContratacion(Date.from(sql.getFechaContratacion().toInstant()));
                     mongo.setSalarioHora(sql.getSalarioHora());
                     mongo.setActivo(sql.getActivo());
                     mongo.setHorasContrato(sql.getHorasContrato());
