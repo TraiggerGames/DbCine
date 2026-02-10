@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
@@ -19,10 +19,10 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "es.recha.dbcine.repository.mongo")
 public class MongoConfig {
 
-    @Value("${spring.mongodb.uri}")
+    @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
 
-    @Value("${spring.mongodb.database}")
+    @Value("${spring.data.mongodb.database}")
     private String databaseName;
 
     @Bean
@@ -35,12 +35,31 @@ public class MongoConfig {
         return new SimpleMongoClientDatabaseFactory(mongoClient(), databaseName);
     }
 
+    /**
+     * IMPORTANTE:
+     * - NO devuelvas lista vacía.
+     * - Deja que Spring registre sus converters por defecto (incluyendo Java Time).
+     * Si necesitas converters custom, añádelos aquí, pero sin vaciar los default.
+     */
+    @Bean
+    public MongoCustomConversions mongoCustomConversions() {
+        return MongoCustomConversions.create(config -> {
+            // aquí puedes añadir converters custom con config.registerConverter(...)
+            // pero NO es necesario para LocalDateTime en condiciones normales
+        });
+    }
+
     @Primary
     @Bean
-    public MongoTemplate mongoTemplate() {
-        MappingMongoConverter converter =
-                new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory()), new MongoMappingContext());
-        converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-        return new MongoTemplate(mongoDbFactory(), converter);
+    public MongoTemplate mongoTemplate(
+            MongoDatabaseFactory factory,
+            MongoMappingContext mappingContext,
+            MongoCustomConversions conversions
+    ) {
+        MappingMongoConverter converter = new MappingMongoConverter(factory, mappingContext);
+        converter.setCustomConversions(conversions);
+        converter.setTypeMapper(new DefaultMongoTypeMapper(null)); // quita _class si quieres
+        converter.afterPropertiesSet();
+        return new MongoTemplate(factory, converter);
     }
 }
